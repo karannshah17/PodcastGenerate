@@ -1,0 +1,69 @@
+﻿@page
+@model PodcastGenerate.Pages.GeneratePodcastModel
+@{
+    ViewData["Title"] = "Blog to Podcast Converter";
+}
+<div class="container mt-4">
+    <h1 class="mb-4">📰➡️🎙️ Blog to Podcast Converter</h1>
+
+    <form method="post" class="bg-light p-4 rounded">
+        <div class="form-group mb-3">
+            <label for="BlogUrl" class="form-label">Blog URL:</label>
+            <input type="url" class="form-control" id="BlogUrl" asp-for="PodcastRequest.BlogUrl"
+                   placeholder="https://example.com/blog-post" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-podcast"></i> Generate Podcast
+        </button>
+    </form>
+    
+    @if (!string.IsNullOrEmpty(Model.PodcastRequest.ErrorMessage))
+    {
+        <div class="alert alert-danger mt-3">@Model.PodcastRequest.ErrorMessage</div>
+    }
+
+    @if (Model.PodcastRequest.ShowAudioPlayer && !string.IsNullOrEmpty(Model.PodcastRequest.AudioFilePath))
+    {
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🎧 Your Generated Podcast</h5>
+            </div>
+            <div class="card-body">
+                <audio controls class="w-100 mb-3">
+                    <source src="@Model.PodcastRequest.AudioFilePath" type="audio/mpeg">
+                    Your browser does not support audio playback
+                </audio>
+                <a href="@Model.PodcastRequest.AudioFilePath"
+                   class="btn btn-outline-success"
+                   download="blog-podcast.mp3">
+                    <i class="fas fa-download"></i> Download Podcast
+                </a>
+            </div>
+        </div>
+    }
+    @if (Model.PodcastRequest.ShowAudioPlayer && Model.AudioBytes != null)
+    {
+        <div class="card mt-4">
+            <div class="card-body">
+                <audio controls class="w-100">
+                    <source src="@GetAudioSrc()" type="audio/wav">
+                    Your browser doesn't support audio playback
+                </audio>
+                <a href="@GetAudioSrc()"
+                   class="btn btn-primary mt-2"
+                   download="generated-podcast.wav">
+                    <i class="fas fa-download"></i> Download
+                </a>
+            </div>
+        </div>
+    }
+    @functions {
+        string GetAudioSrc()
+        {
+            if (Model.AudioBytes == null) return "#";
+            return $"data:audio/wav;base64,{Convert.ToBase64String(Model.AudioBytes)}";
+         }
+    }
+
+</div>
